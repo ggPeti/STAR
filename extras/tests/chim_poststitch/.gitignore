@@ -1,0 +1,18 @@
+# Test artifacts produced by test.sh
+/test_old_21/
+/test_old_22/
+/test_new_6/
+/star_index_chimera2/
+
+# Common STAR outputs (if ever emitted in this dir)
+/Log.out
+/Log.final.out
+/SJ.out.tab
+/Chimeric.out.junction
+/_STARtmp/
+/*.log
+
+# BAM outputs (if any end up here)
+/Aligned.out.bam
+/Aligned.sortedByCoord.out.bam
+/*Aligned*.bam

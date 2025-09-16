@@ -792,10 +792,12 @@
   \optLine{int{\textgreater}=0: minimum length of chimeric segment length, if ==0, no chimeric output} 
 \optName{chimScoreMin}
   \optValue{0}
-  \optLine{int{\textgreater}=0: minimum total (summed) score of the chimeric segments} 
+  \optLine{int{\textgreater}=0: minimum total (summed) score of the chimeric segments}
+  \optLine{Note: With --chimScoreUsePostStitch 1, this minimum is applied to post-stitch (final) chimeric scores in the new detection path.}
 \optName{chimScoreDropMax}
   \optValue{20}
-  \optLine{int{\textgreater}=0: max drop (difference) of chimeric score (the sum of scores of all chimeric segments) from the read length} 
+  \optLine{int{\textgreater}=0: max drop (difference) of chimeric score (the sum of scores of all chimeric segments) from the read length}
+  \optLine{Note: With --chimScoreUsePostStitch 1, this drop is evaluated against post-stitch chimeric scores; otherwise legacy gating uses pre-stitch scores for the initial threshold.}
 \optName{chimScoreSeparation}
   \optValue{10}
   \optLine{int{\textgreater}=0: minimum difference (separation) between the best chimeric score and the next one} 
@@ -837,6 +839,15 @@
   \optOpt{0}   \optOptLine{no comment lines/headers}
   \optOpt{1}   \optOptLine{comment lines at the end of the file: command line and Nreads: total, unique/multi-mapping}
 \end{optOptTable}
+
+\optName{chimScoreUsePostStitch}
+  \optValue{0}
+  \optLine{bool: 0/1. If 1, chimeric score drop/min thresholds are applied to post-stitch (final) chimeric scores; pre-stitch scores are only used for a permissive pre-filter.}
+
+\optName{chimScorePreStitchAllowance}
+  \optValue{32}
+  \optLine{int{\textgreater}=0: allowance below the final threshold used for the pre-stitch permissive filter when --chimScoreUsePostStitch 1. Larger values increase compute; smaller values risk false negatives.}
+
 \end{optTable}
 \optSection{Quantification of Annotations}\label{Quantification_of_Annotations}
 \begin{optTable}

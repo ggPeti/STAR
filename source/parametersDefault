@@ -692,9 +692,11 @@ chimSegmentMin              0
 
 chimScoreMin                0
     int>=0: minimum total (summed) score of the chimeric segments
+    Note: With --chimScoreUsePostStitch 1, this minimum is applied to the post-stitch (final) chimeric scores in the new detection path.
 
 chimScoreDropMax            20
     int>=0: max drop (difference) of chimeric score (the sum of scores of all chimeric segments) from the read length
+    Note: With --chimScoreUsePostStitch 1, this drop is evaluated against post-stitch chimeric scores; otherwise legacy gating uses pre-stitch scores for the initial threshold.
 
 chimScoreSeparation         10
     int>=0: minimum difference (separation) between the best chimeric score and the next one
@@ -730,6 +732,12 @@ chimOutJunctionFormat           0
     int: formatting type for the Chimeric.out.junction file
                                 0 ... no comment lines/headers
                                 1 ... comment lines at the end of the file: command line and Nreads: total, unique/multi-mapping
+
+chimScoreUsePostStitch          0
+    bool: 0/1. If 1, chimeric score drop/min thresholds are applied to post-stitch (final) chimeric scores; pre-stitch scores are only used for a permissive pre-filter.
+
+chimScorePreStitchAllowance     32
+    int>=0: allowance below the final threshold used for the pre-stitch permissive filter when --chimScoreUsePostStitch 1. Larger values increase compute; smaller values risk false negatives.
 
 ### Quantification of Annotations
 quantMode                   -

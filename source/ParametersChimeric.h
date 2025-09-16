@@ -17,6 +17,9 @@ class ParametersChimeric
 
         vector<int> outJunctionFormat;
 
+        bool scoreUsePostStitch; // if true, gate with post‑stitch scores
+        int scorePreStitchAllowance; // pre-stitch margin to allow stitching
+
         struct
         {
             vector <string> stringIn;

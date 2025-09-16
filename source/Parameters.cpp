@@ -20,6 +20,10 @@ Parameters::Parameters() {//initalize parameters info
 
     inOut = new InOutStreams;
 
+    // Defaults for new chimeric scoring mode
+    pCh.scoreUsePostStitch = false;
+    pCh.scorePreStitchAllowance = 32;
+
     //versions
     parArray.push_back(new ParameterInfoScalar <string> (-1, -1, "versionGenome", &versionGenome));
 
@@ -235,6 +239,11 @@ Parameters::Parameters() {//initalize parameters info
     parArray.push_back(new ParameterInfoScalar <uint>       (-1, -1, "chimMultimapScoreRange", &pCh.multimapScoreRange));
     parArray.push_back(new ParameterInfoScalar <uint>       (-1, -1, "chimNonchimScoreDropMin", &pCh.nonchimScoreDropMin));
     parArray.push_back(new ParameterInfoVector <int>        (-1, -1, "chimOutJunctionFormat", &pCh.outJunctionFormat));
+    // New chimeric scoring mode parameters
+    // Marked as defined at defaults level (inputLevel=0) to avoid requiring a parametersDefault entry.
+    // They can still be overridden by CLI or files.
+    parArray.push_back(new ParameterInfoScalar <bool>       (-1, -1, "chimScoreUsePostStitch", &pCh.scoreUsePostStitch));
+    parArray.push_back(new ParameterInfoScalar <int>        (-1, -1, "chimScorePreStitchAllowance", &pCh.scorePreStitchAllowance));
 
     //sjdb
     parArray.push_back(new ParameterInfoVector <string> (-1, -1, "sjdbFileChrStartEnd", &pGe.sjdbFileChrStartEnd));
