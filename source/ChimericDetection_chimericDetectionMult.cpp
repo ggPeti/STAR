@@ -69,6 +69,8 @@ bool ChimericDetection::chimericDetectionMult(uint nW, uint *readLength, int max
 
                     int chimScore=chimericAlignScore(seg1,seg2);
 
+                    bool passesStrictFilter = (chimScore >= minScoreToConsider);
+
                     if (!P.pCh.scoreUsePostStitch) {
                         // Legacy behavior: hard gate on pre-stitch score
                         if (chimScore >= minScoreToConsider) {//candidate chimera
@@ -99,30 +101,34 @@ bool ChimericDetection::chimericDetectionMult(uint nW, uint *readLength, int max
                         }; // endif meets legacy pre-stitch criteria
                     } else {
                         // New behavior: permissive pre-filter, gate on post-stitch score
-                        if (chimScore >= minScoreToConsider - (int)P.pCh.scorePreStitchAllowance) {//pre-filter candidate chimera
+                        if (chimScore >= minScoreToConsider - (int)P.pCh.scorePreStitchAllowance) { // Permissive pre-filter
                             ChimericAlign chAl(seg1, seg2, chimScore, outGen, RA);
 
-                            if (!chAl.chimericCheck())
-                                continue; //check chimeric alignment
+                            if (!chAl.chimericCheck()) {
+                                continue;
+                            }
 
                             chAl.chimericStitching(outGen.G, Read1);
                             int chimScore_post = chAl.chimScore; // post-stitch score
 
-                            if (chimScore_post >= minScoreToConsider) { // survived final gating after stitching.
-                                chimAligns.push_back(chAl);//add this chimeric alignment
+                            if (chimScore_post >= minScoreToConsider) { // Final gating
+                                chimAligns.push_back(chAl); // Add this chimeric alignment
 
-                                if (chimScore_post > chimScoreBest) {
-                                    chimScoreBest=chimScore_post;
-                                    bestChimAlign = chimAligns.size()-1;
-                                    if ((chimScoreBest - (int)P.pCh.multimapScoreRange) > minScoreToConsider)
-                                        // best score increased, so subsequent alignment candidates must score higher
+                                // *** CRITICAL FIX ***
+                                // Only update the best score and ratchet up the threshold if the candidate
+                                // would have passed the STRICT filter. This prevents threshold poisoning.
+                                if (passesStrictFilter && chimScore_post > chimScoreBest) {
+                                    chimScoreBest = chimScore_post;
+                                    bestChimAlign = chimAligns.size() - 1;
+                                    if ((chimScoreBest - (int)P.pCh.multimapScoreRange) > minScoreToConsider) {
                                         minScoreToConsider = chimScoreBest - (int)P.pCh.multimapScoreRange;
-                                };
+                                    }
+                                }
                             } else {
-                                // al1, al2 allocated during stitching
+                                // Alignment did not survive final gating, ensure memory is deallocated
                                 delete chAl.al1;
                                 delete chAl.al2;
-                            };
+                            }
                         } // else: dropped by permissive pre-filter quietly
                     }
                 };//cycle over window2 aligns
