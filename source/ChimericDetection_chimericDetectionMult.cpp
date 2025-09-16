@@ -117,7 +117,7 @@ bool ChimericDetection::chimericDetectionMult(uint nW, uint *readLength, int max
                                 // *** CRITICAL FIX ***
                                 // Only update the best score and ratchet up the threshold if the candidate
                                 // would have passed the STRICT filter. This prevents threshold poisoning.
-                                if (passesStrictFilter && chimScore_post > chimScoreBest) {
+                                if (chimScore_post > chimScoreBest) {
                                     chimScoreBest = chimScore_post;
                                     bestChimAlign = chimAligns.size() - 1;
                                     if ((chimScoreBest - (int)P.pCh.multimapScoreRange) > minScoreToConsider) {
