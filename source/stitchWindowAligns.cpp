@@ -271,16 +271,26 @@ void stitchWindowAligns(uint iA, uint nA, int Score, bool WAincl[], uint tR2, ui
                 uint uNew=trA.mappedLength-nOverlap;
                 uint uOld=wTr[iTr]->mappedLength-nOverlap;
 
-                if (uNew==0 && Score < wTr[iTr]->maxScore) {//new transript is a subset of the old ones
-                    break;
-                } else if (uOld==0) {//old transcript is a subset of the new one, remove old transcript
-                    Transcript *pTr=wTr[iTr];
-                    for  (uint ii=iTr+1;ii<*nWinTr;ii++) wTr[ii-1]=wTr[ii]; //shift transcripts
-                    (*nWinTr)--;
-                    wTr[*nWinTr]=pTr;
-                } else if (uOld>0 && (uNew>0 || Score >= wTr[iTr]->maxScore) ) {//check next transcript
+
+                if (!P.pCh.allowSubsetTranscripts) {
+                    // legacy behavior (current):
+                    if (uNew==0 && Score < wTr[iTr]->maxScore) {
+                        break; // drop the new subset transcript
+                    } else if (uOld==0) {
+                        // remove old transcript and continue
+                        Transcript *pTr=wTr[iTr];
+                        for (uint ii=iTr; ii<*nWinTr-1; ii++) {
+                            wTr[ii]=wTr[ii+1];
+                        };
+                        wTr[*nWinTr-1]=pTr;
+                        (*nWinTr)--;
+                        continue; // continue with the same iTr
+                    } else if (uOld>0 && (uNew>0 || Score >= wTr[iTr]->maxScore) ) {
+                        iTr++; // check next transcript
+                    };
+                } else {
                     iTr++;
-                };
+                }
 
             };
 
@@ -351,5 +361,3 @@ void stitchWindowAligns(uint iA, uint nA, int Score, bool WAincl[], uint tR2, ui
     };
     return;
 };
-
-

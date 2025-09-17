@@ -244,6 +244,7 @@ Parameters::Parameters() {//initalize parameters info
     // They can still be overridden by CLI or files.
     parArray.push_back(new ParameterInfoScalar <bool>       (-1, -1, "chimScoreUsePostStitch", &pCh.scoreUsePostStitch));
     parArray.push_back(new ParameterInfoScalar <int>        (-1, -1, "chimScorePreStitchAllowance", &pCh.scorePreStitchAllowance));
+    parArray.push_back(new ParameterInfoScalar <bool>       (-1, -1, "chimAllowSubsetTranscripts", &pCh.allowSubsetTranscripts));
 
     //sjdb
     parArray.push_back(new ParameterInfoVector <string> (-1, -1, "sjdbFileChrStartEnd", &pGe.sjdbFileChrStartEnd));
