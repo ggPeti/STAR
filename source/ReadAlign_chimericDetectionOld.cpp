@@ -86,7 +86,7 @@ bool ReadAlign::chimericDetectionOld() {
                         chimScoreNext=chimScoreBest;
                     };
                     chimScoreBest=chimScore;
-                    trChim[1].roStart = trChim[1].roStr ==0 ? trChim[1].rStart : Lread - trChim[1].rStart - trChim[1].rLength;
+                    trChim[1].roStart = trChim[1].roStr ==0 ? trChim[1].rStart : Lread - trChim[1].rStart - trChim[1].rLength - (trChim[1].iFrag < 0 ? 1 : 0);
                     trChim[1].cStart  = trChim[1].gStart - mapGen.chrStart[trChim[1].Chr];
                     chimStrBest=chimStr1;
                 } else if (chimScore>chimScoreNext && overlap1==0) {//replace the nextscore if it's not the best one and is higher than the previous one

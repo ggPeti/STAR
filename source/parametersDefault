@@ -739,9 +739,6 @@ chimScoreUsePostStitch          0
 chimScorePreStitchAllowance     32
     int>=0: allowance below the final threshold used for the pre-stitch permissive filter when --chimScoreUsePostStitch 1. Larger values increase compute; smaller values risk false negatives.
 
-chimAllowSubsetTranscripts      0
-    bool: if 1, do not drop or replace subset transcripts during window stitching; keep subsets and supersets
-
 ### Quantification of Annotations
 quantMode                   -
     string(s): types of quantification requested

@@ -38,5 +38,4 @@ mkdir -p test_new_6
   --chimScoreUsePostStitch 1 \
   --chimJunctionOverhangMin 0 \
   --chimScorePreStitchAllowance 50 \
-  --chimScoreJunctionNonGTAG 0 \
-  --chimAllowSubsetTranscripts 1
+  --chimScoreJunctionNonGTAG 0

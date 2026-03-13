@@ -19,7 +19,6 @@ class ParametersChimeric
 
         bool scoreUsePostStitch; // if true, gate with post‑stitch scores
         int scorePreStitchAllowance; // pre-stitch margin to allow stitching
-        bool allowSubsetTranscripts; // if true, do not drop or replace subset transcripts during window stitching
 
         struct
         {

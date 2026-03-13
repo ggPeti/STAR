@@ -49,7 +49,7 @@ void ReadAlign::multMapSelect() {//select multiple mappers from all transcripts 
     };
 
     for (uint iTr=0; iTr<nTr; iTr++) {
-        trMult[iTr]->roStart = trMult[iTr]->roStr==0 ? trMult[iTr]->rStart : Lread - trMult[iTr]->rStart - trMult[iTr]->rLength;
+        trMult[iTr]->roStart = trMult[iTr]->roStr==0 ? trMult[iTr]->rStart : Lread - trMult[iTr]->rStart - trMult[iTr]->rLength - (trMult[iTr]->iFrag < 0 ? 1 : 0);
         trMult[iTr]->cStart=trMult[iTr]->gStart - mapGen.chrStart[trMult[iTr]->Chr];
     };
 

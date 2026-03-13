@@ -2,11 +2,52 @@
 #include "ChimericDetection.h"
 #include "ChimericSegment.h"
 #include "ReadAlign.h"
+#include <iostream>
 
 int chimericAlignScore (ChimericSegment & seg1, ChimericSegment & seg2)
 {
     int chimScore=0;
-    uint chimOverlap = seg2.roS>seg1.roS ?  (seg2.roS>seg1.roE ? 0 : seg1.roE-seg2.roS+1) : (seg2.roE<seg1.roS ? 0 : seg2.roE-seg1.roS+1);
+    uint chimOverlap = [&seg1,&seg2]()->uint {
+        auto exonROBlocks = [&](const ChimericSegment &seg)->vector<pair<uint,uint>> {
+            vector<pair<uint,uint>> blocks;
+            blocks.reserve(seg.align.nExons);
+            for (uint iex=0; iex<seg.align.nExons; ++iex) {
+                uint roStart = seg.align.Str==0
+                    ? seg.align.exons[iex][EX_R]
+                    : seg.align.Lread - seg.align.exons[iex][EX_R] - seg.align.exons[iex][EX_L];
+                uint roEnd = seg.align.Str==0
+                    ? seg.align.exons[iex][EX_R] + seg.align.exons[iex][EX_L] - 1
+                    : seg.align.Lread - seg.align.exons[iex][EX_R] - 1;
+
+                if (roStart>seg.align.readLength[0]) roStart--;
+                if (roEnd>seg.align.readLength[0]) roEnd--;
+
+                blocks.push_back({roStart, roEnd});
+            };
+
+            sort(blocks.begin(), blocks.end());
+            return blocks;
+        };
+
+        vector<pair<uint,uint>> blocks1 = exonROBlocks(seg1);
+        vector<pair<uint,uint>> blocks2 = exonROBlocks(seg2);
+
+        uint overlap=0;
+        uint i1=0, i2=0;
+        while (i1<blocks1.size() && i2<blocks2.size()) {
+            uint s = max(blocks1[i1].first,  blocks2[i2].first);
+            uint e = min(blocks1[i1].second, blocks2[i2].second);
+            if (s<=e)
+                overlap += e-s+1;
+
+            uint e1 = blocks1[i1].second;
+            uint e2 = blocks2[i2].second;
+            if (e1<=e2) ++i1;
+            if (e2<=e1) ++i2;
+        };
+
+        return overlap;
+    }();
     bool diffMates=(seg1.roE < seg1.align.readLength[0] && seg2.roS >= seg1.align.readLength[0]) || (seg2.roE < seg1.align.readLength[0] && seg1.roS >= seg1.align.readLength[0]);
 
     //segment lengths && (different mates || small gap between segments)
@@ -46,6 +87,12 @@ bool ChimericDetection::chimericDetectionMult(uint nW, uint *readLength, int max
         minScoreToConsider = maxNonChimAlignScore + 1;
     if ((maxPossibleAlignScore - P.pCh.scoreDropMax) > minScoreToConsider)
         minScoreToConsider = maxPossibleAlignScore - P.pCh.scoreDropMax;
+
+    for (uint iW=0; iW<nW; iW++) {
+        for (uint iA=0; iA<nWinTr[iW]; iA++) {
+            Transcript &tr = *trAll[iW][iA];
+        }
+    }
 
     for (uint iW1=0; iW1<nW; iW1++) {//cycle windows
         for (uint iA1=0; iA1<nWinTr[iW1]; iA1++) {//cycle aligns in the window

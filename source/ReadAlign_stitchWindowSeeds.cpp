@@ -194,7 +194,7 @@ void ReadAlign::stitchWindowSeeds (uint iW, uint iWrec, bool *WAexcl, char *R) {
         trA.gLength = trA.exons[trA.nExons-1][EX_G]+1-trA.gStart;
 
         //calculate some final values for the transcript
-        trA.roStart = (trA.roStr == 0) ? trA.rStart : Lread - trA.rStart - trA.rLength;
+        trA.roStart = (trA.roStr == 0) ? trA.rStart : Lread - trA.rStart - trA.rLength - (trA.exons[0][EX_iFrag]!=trA.exons[trA.nExons-1][EX_iFrag] ? 1 : 0);
 
         if (trA.exons[0][EX_iFrag]==trA.exons[trA.nExons-1][EX_iFrag]) {//mark single fragment transcripts
             trA.iFrag=trA.exons[0][EX_iFrag];

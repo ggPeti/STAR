@@ -1,4 +1,5 @@
 #include "ChimericAlign.h"
+#include <iostream>
 
 void ChimericAlign::chimericStitching(char *genSeq, char **Read1) {
 
@@ -14,6 +15,13 @@ void ChimericAlign::chimericStitching(char *genSeq, char **Read1) {
 
     Transcript &a1=*al1;
     Transcript &a2=*al2;//to use instead of pointers
+
+    // Trim al2 to junction-relevant exons only.
+    // For Str=1: exons are stored in decreasing ro order; ex2=0 is the junction-facing exon.
+    // Exons with index > ex2 have lower ro (pre-junction territory) and must be discarded.
+    if (a2.Str==1 && ex2+1 < a2.nExons) {
+        a2.nExons = ex2+1;
+    }
 
     chimStr = max(seg1.str,seg2.str); //segment strands are either equal, or one is zero - select the non-zero strand
 
@@ -177,5 +185,8 @@ void ChimericAlign::chimericStitching(char *genSeq, char **Read1) {
     };
 
     //re-calculate chimScore for adjusted transcripts
-    chimScore=a1.alignScore(Read1,genSeq,P) + a2.alignScore(Read1,genSeq,P) + (chimMotif==0 ? P.pCh.scoreJunctionNonGTAG : 0);
+    int score1 = a1.alignScore(Read1,genSeq,P);
+    int score2 = a2.alignScore(Read1,genSeq,P);
+    int motifPenalty = (chimMotif==0 ? P.pCh.scoreJunctionNonGTAG : 0);
+    chimScore = score1 + score2 + motifPenalty;
 };
