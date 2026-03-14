@@ -19,7 +19,7 @@ mkdir -p "${GENOME_DIR}"
 "${STAR_BIN}" --runMode genomeGenerate \
     --genomeDir "${GENOME_DIR}" \
     --genomeFastaFiles "${GENOME_FA}" \
-    --genomeSAindexNbases 10 \
+    --genomeSAindexNbases 4 \
     --genomeChrBinNbits 8 \
     --runThreadN 2 > "${GENOME_DIR}/genomeGenerate.log" 2>&1
 echo "Genome index created."

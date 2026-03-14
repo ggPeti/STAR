@@ -2,7 +2,6 @@
 #include "ChimericDetection.h"
 #include "ChimericSegment.h"
 #include "ReadAlign.h"
-#include <iostream>
 
 int chimericAlignScore (ChimericSegment & seg1, ChimericSegment & seg2)
 {

@@ -16,11 +16,38 @@ void ChimericAlign::chimericStitching(char *genSeq, char **Read1) {
     Transcript &a1=*al1;
     Transcript &a2=*al2;//to use instead of pointers
 
-    // Trim al2 to junction-relevant exons only.
-    // For Str=1: exons are stored in decreasing ro order; ex2=0 is the junction-facing exon.
-    // Exons with index > ex2 have lower ro (pre-junction territory) and must be discarded.
-    if (a2.Str==1 && ex2+1 < a2.nExons) {
-        a2.nExons = ex2+1;
+    // Trim al1 and al2 to junction-relevant exons only.
+    // Remove exons on the wrong side of the junction in ro-space:
+    //   al1 territory = lower ro (Str=0: indices <= ex1, Str=1: indices >= ex1)
+    //   al2 territory = higher ro (Str=0: indices >= ex2, Str=1: indices <= ex2)
+    // This removes flanking exons from a different mate that map to the "wrong" reference.
+    auto shiftExonsLeft = [](Transcript &a, uint toRemove) {
+        uint remaining = a.nExons - toRemove;
+        for (uint iex = 0; iex < remaining; iex++) {
+            for (uint k = 0; k < EX_SIZE; k++)
+                a.exons[iex][k] = a.exons[iex + toRemove][k];
+            if (iex + 1 < remaining) { // copy junction info between consecutive kept exons
+                a.canonSJ[iex] = a.canonSJ[iex + toRemove];
+                a.sjAnnot[iex] = a.sjAnnot[iex + toRemove];
+                a.sjStr[iex] = a.sjStr[iex + toRemove];
+                a.shiftSJ[iex][0] = a.shiftSJ[iex + toRemove][0];
+                a.shiftSJ[iex][1] = a.shiftSJ[iex + toRemove][1];
+            }
+        }
+        a.nExons = remaining;
+    };
+
+    if (a1.Str==0) {
+        a1.nExons = ex1+1; // keep exons 0..ex1 (lower ro)
+    } else if (ex1 > 0) { // Str=1: keep exons ex1..nExons-1 (lower ro for Str=1)
+        shiftExonsLeft(a1, ex1);
+        ex1 = 0;
+    }
+    if (a2.Str==1) {
+        a2.nExons = ex2+1; // keep exons 0..ex2 (higher ro for Str=1)
+    } else if (ex2 > 0) { // Str=0: keep exons ex2..nExons-1 (higher ro)
+        shiftExonsLeft(a2, ex2);
+        ex2 = 0;
     }
 
     chimStr = max(seg1.str,seg2.str); //segment strands are either equal, or one is zero - select the non-zero strand
@@ -41,12 +68,15 @@ void ChimericAlign::chimericStitching(char *genSeq, char **Read1) {
         };
     } else {//chimeric junctions is within one of the mates, check and shift chimeric junction if necessary
         uint roStart0 = a1.Str==0 ? a1.exons[ex1][EX_R] : a1.Lread - a1.exons[ex1][EX_R] - a1.exons[ex1][EX_L];
-        uint roStart1 = a2.Str==0 ? a2.exons[ex2][EX_R] : a1.Lread - a2.exons[ex2][EX_R] - a2.exons[ex2][EX_L];
-
+        uint roStart1 = a2.Str==0 ? a2.exons[ex2][EX_R] : a2.Lread - a2.exons[ex2][EX_R] - a2.exons[ex2][EX_L];
         uint jR, jRbest=0;
         int jScore=0,jMotif=0,jScoreBest=-999999,jScoreJ=0;
         uint jRmax = roStart1+a2.exons[ex2][EX_L];
         jRmax = jRmax>roStart0 ? jRmax-roStart0-1 : 0;
+        if (jRmax==0) {//no valid overlap between junction exons - cannot stitch
+            chimScore=0;
+            return;
+        };
         for (jR=0; jR<jRmax; jR++) {//scan through the exons to find a canonical junction, and check for mismatches
 
             if (jR==a1.readLength[0]) jR++; //skip the inter-mate base
